@@ -268,7 +268,7 @@ else
   exec python3 "$HOME/.local/share/jayson-dev/doctor.py" "$@"
 fi
 DEV_BUNDLE_e8bbb65ee7161889eab2d62b
-cat > "$bundle_dir/scripts/doctor.py" <<'DEV_BUNDLE_51df901e0e8bb63e217732f5'
+cat > "$bundle_dir/scripts/doctor.py" <<'DEV_BUNDLE_5709ed94973acc5e7f81cf59'
 #!/usr/bin/env python3
 # Managed by linux-dev-bootstrap
 """Read-only hardware/tool inventory. No benchmarks, network requests or credential reads."""
@@ -348,6 +348,7 @@ def collect(required,home=None):
         code,text=command([executable,flag])
         # nvcc's relevant release appears after its copyright banner.
         version=next((line for line in text.splitlines() if 'release ' in line),text.splitlines()[0] if text else '') if name=='nvcc' else (text.splitlines()[0] if text else '')
+        if name=='zip': version=next((line for line in text.splitlines() if line.startswith('This is Zip ')),version)
         tools[name]={'available':code==0,'path':executable,'version':version,'error':'' if code==0 else text[:200]}
     ble=home/'.local/share/blesh/ble.sh'
     if ble.is_file():code,text=command(['bash',str(ble),'--version'])
@@ -397,5 +398,5 @@ def main():
     return 0 if report['ok'] else 1
 
 if __name__=='__main__':raise SystemExit(main())
-DEV_BUNDLE_51df901e0e8bb63e217732f5
+DEV_BUNDLE_5709ed94973acc5e7f81cf59
 bash "$bundle_dir/bootstrap.sh" "$@"

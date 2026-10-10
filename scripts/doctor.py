@@ -77,6 +77,7 @@ def collect(required,home=None):
         code,text=command([executable,flag])
         # nvcc's relevant release appears after its copyright banner.
         version=next((line for line in text.splitlines() if 'release ' in line),text.splitlines()[0] if text else '') if name=='nvcc' else (text.splitlines()[0] if text else '')
+        if name=='zip': version=next((line for line in text.splitlines() if line.startswith('This is Zip ')),version)
         tools[name]={'available':code==0,'path':executable,'version':version,'error':'' if code==0 else text[:200]}
     ble=home/'.local/share/blesh/ble.sh'
     if ble.is_file():code,text=command(['bash',str(ble),'--version'])
