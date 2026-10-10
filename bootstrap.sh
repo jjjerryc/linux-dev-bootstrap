@@ -110,5 +110,14 @@ fi
 config_args=(--home "$HOME")
 if ((with_agents)); then config_args+=(--agents "$ROOT/config/AGENTS.md"); fi
 python3 "$ROOT/scripts/configure.py" "${config_args[@]}"
-echo 'Done. Open a new Bash terminal, then run ./doctor.sh.'
+if ((!config_only)); then
+  required_tools=bash,git,curl,python3,tmux,rg,fd,rsync,gawk,tar,xz
+  if ((install_uv)); then required_tools+=,uv; fi
+  if ((install_node)); then required_tools+=,nvm,node,npm; fi
+  if ((install_codex)); then required_tools+=,codex; fi
+  if ((install_blesh)); then required_tools+=,blesh; fi
+  echo 'Verifying installed tools, versions and shell configuration...'
+  "$HOME/.local/bin/dev-doctor" --require "$required_tools"
+fi
+echo 'Done. Open a new Bash terminal. Run dev-doctor anytime to inspect this host.'
 echo 'For noninteractive SSH: ~/.local/bin/dev-run uv --version (or codex --version).'

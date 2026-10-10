@@ -38,12 +38,15 @@ if (($# == 0)); then echo 'Usage: dev-run COMMAND [ARGS...]' >&2; exit 2; fi
 exec "$@"
 '''
 
-def configure(home):
+def configure(home, source=None):
     home = Path(home)
     backup = home / '.local/state/jayson-dev/backups' / str(time.time_ns())
     files = {home/'.config/jayson-dev/env.sh': ENV,
              home/'.config/jayson-dev/bash.sh': BASH,
              home/'.local/bin/dev-run': RUN}
+    source=Path(source) if source else Path(__file__).resolve().parents[1]
+    files[home/'.local/bin/dev-doctor']=(source/'doctor.sh').read_text()
+    files[home/'.local/share/jayson-dev/doctor.py']=(source/'scripts/doctor.py').read_text()
     bash_hook = '''[ ! -r "$HOME/.config/jayson-dev/env.sh" ] || . "$HOME/.config/jayson-dev/env.sh"
 if [ -n "${BASH_VERSION:-}" ] && [ -r "$HOME/.config/jayson-dev/bash.sh" ]; then
     . "$HOME/.config/jayson-dev/bash.sh"
@@ -79,7 +82,7 @@ fi'''
             saved.chmod(0o600)
         path.parent.mkdir(parents=True,exist_ok=True)
         path.write_text(new)
-        if path.name == 'dev-run': path.chmod(0o755)
+        if path.name in ('dev-run','dev-doctor'): path.chmod(0o755)
         print(f'Configured: {path}')
     # Provide fd on distributions that package it as fdfind; never replace an existing command.
     target=home/'.local/bin/fd'

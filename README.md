@@ -65,7 +65,7 @@ curl -fsSL https://jjjerryc.github.io/i | bash -s -- --with-agents
 bash install.sh --dry-run
 bash install.sh
 # 開一個新的 Bash 終端
-bash doctor.sh
+dev-doctor
 ```
 
 完整模式預設使用 sudo 安裝依賴；單行下載入口只需已有 Bash、curl 及網路。`--user-only` 模式需主機已有必要依賴。腳本下載只用 HTTPS，下載到私人暫存目錄後執行。
@@ -93,6 +93,8 @@ bash bootstrap.sh --with-agents     # 新增可移植的 Codex 全域規則；�
 - `~/.config/jayson-dev/bash.sh`：互動 Bash 的 nvm、補全及 ble.sh 載入。
 - `~/.bashrc`：只新增／更新 `linux-dev-bootstrap` 標記區塊。
 - Login shell：已有 `.bash_profile` 或 `.bash_login` 就更新它，否則更新 `.profile`，不另外建立會遮蔽既有設定的 profile。
+- `~/.local/bin/dev-doctor`：檢查硬體、工具版本及 shell 設定；`dev-doctor --json` 輸出結構化報告。
+- `~/.local/share/jayson-dev/doctor.py`：標準函式庫實作，沒有額外 Python 套件依賴。
 - `~/.local/bin/dev-run`：非互動命令的 PATH＋nvm 包裝器；用 `exec` 保留實際命令的退出碼。
 - `~/.local/state/jayson-dev/backups/<時間戳>/`：修改前的設定備份；檔案私人權限。
 
@@ -148,3 +150,19 @@ bash bootstrap.sh --dry-run
 ### 維護單行安裝器
 
 修改 `bootstrap.sh`、`scripts/configure.py` 或 `config/AGENTS.md` 後執行 `python3 scripts/build_installer.py`，將產生的 `install.sh` 一起提交／發布。測試會確認它與來源一致，也會確認透過 stdin 執行時參數能正確傳遞、乾跑不會寫入使用者環境。
+
+## 硬體盤點與自動驗證
+
+安裝後自動執行 `dev-doctor`，驗證本次選擇安裝的工具及 managed shell 檔案的 Bash 語法；驗證失敗會以非零退出碼回報，不會假裝安裝成功。`--config-only` 不驗證未安裝工具。日後可直接執行：
+
+```bash
+dev-doctor
+dev-doctor --json
+dev-doctor --json > machine-report.json
+```
+
+報告包含 OS、kernel、架構、glibc、CPU 型號／邏輯 CPU 與目前可用執行槽、負載、RAM 總量與可用量、home 所在磁碟容量，以及 NVIDIA GPU 型號／VRAM／驅動版本。版本清單包含已安裝的核心開發工具，另檢查 gcc、g++、make、cmake、pkg-config、Docker、nvcc 與 nvidia-smi；後者是選用工具，這個腳本不因此安裝 CUDA、驅動、Docker 或所有編譯工具。
+
+只讀取資訊，不跑 benchmark、不分配 GPU 工作、不下載模型、不掃描整個 home、不讀 SSH keys／token，也不自動上傳報告。GPU 查詢及工具版本命令有 timeout；無 NVIDIA GPU 的 CPU 主機仍可通過核心環境驗證。它不掃描每個專案 .venv 內的 PyTorch 等套件，專案依賴仍由各自的 lockfile 管理。
+
+若之前已透過一行指令安裝，重跑同一行就會加入新的 doctor 與自動驗證，既有工具仍會重用。
