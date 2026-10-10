@@ -12,9 +12,9 @@ import shlex
 import shutil
 import subprocess
 
-TOOLS=['bash','git','curl','python3','uv','node','npm','codex','tmux','rg','fd','rsync','gawk','tar','xz',
+TOOLS=['bash','git','curl','python3','uv','node','npm','codex','tmux','rg','fd','rsync','gawk','tar','xz','zip','unzip','htop','nvtop',
        'gcc','g++','make','cmake','pkg-config','docker','nvcc','nvidia-smi']
-DEFAULT_REQUIRED=['bash','git','curl','python3','uv','node','npm','codex','tmux','rg','fd','rsync','gawk','tar','xz','blesh']
+DEFAULT_REQUIRED=['bash','git','curl','python3','uv','node','npm','codex','tmux','rg','fd','rsync','gawk','tar','xz','zip','unzip','htop','nvtop','blesh']
 
 def command(args, timeout=8):
     try:
@@ -73,7 +73,7 @@ def collect(required,home=None):
         executable=shutil.which(name) or (shutil.which('fdfind') if name=='fd' else None)
         if not executable:
             tools[name]={'available':False,'path':None,'version':None,'error':'not installed'};continue
-        flag='-V' if name=='tmux' else '--version'
+        flag='-V' if name=='tmux' else ('-v' if name in ('zip','unzip') else '--version')
         code,text=command([executable,flag])
         # nvcc's relevant release appears after its copyright banner.
         version=next((line for line in text.splitlines() if 'release ' in line),text.splitlines()[0] if text else '') if name=='nvcc' else (text.splitlines()[0] if text else '')

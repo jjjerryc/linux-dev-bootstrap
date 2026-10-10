@@ -38,7 +38,7 @@ wget -qO- https://jjjerryc.github.io/i | bash
 
 短入口由你的 GitHub Pages 提供，會下載原 repository 的最新版安裝器，不需另外同步一份完整腳本。原始備援網址：`https://raw.githubusercontent.com/jjjerryc/linux-dev-bootstrap/main/install.sh`。
 
-預設就是完整安裝：Ubuntu/Debian 使用 sudo apt，Fedora 使用 sudo dnf，包含 tmux、rg、fd、rsync、Git 等系統工具，以及使用者目錄的 uv、ble.sh、Node／Codex。sudo 可能提示密碼；請用一般帳號執行，讓腳本只對系統套件呼叫 sudo。
+預設就是完整安裝：Ubuntu/Debian 使用 sudo apt，Fedora 使用 sudo dnf，包含 tmux、rg、fd、rsync、Git、zip／unzip、htop、nvtop 等系統工具，以及使用者目錄的 uv、ble.sh、Node／Codex。sudo 可能提示密碼；請用一般帳號執行，讓腳本只對系統套件呼叫 sudo。
 
 共用伺服器沒有 sudo 權限時可改用：
 
@@ -166,3 +166,5 @@ dev-doctor --json > machine-report.json
 只讀取資訊，不跑 benchmark、不分配 GPU 工作、不下載模型、不掃描整個 home、不讀 SSH keys／token，也不自動上傳報告。GPU 查詢及工具版本命令有 timeout；無 NVIDIA GPU 的 CPU 主機仍可通過核心環境驗證。它不掃描每個專案 .venv 內的 PyTorch 等套件，專案依賴仍由各自的 lockfile 管理。
 
 若之前已透過一行指令安裝，重跑同一行就會加入新的 doctor 與自動驗證，既有工具仍會重用。
+
+預設也安裝 zip／unzip（壓縮解壓）、htop（CPU／程序監控）、nvtop（GPU 監控），並驗證各自的版本命令。nvtop 安裝不會順帶安裝或修復 GPU 驅動；CPU-only 主機不需要啟動 nvtop 的互動介面來通過版本驗證。

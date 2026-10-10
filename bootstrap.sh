@@ -44,7 +44,7 @@ printf 'Target: %s\nSystem packages: %s; config only: %s\nuv: %s; ble.sh: %s; No
   "$HOME" "$system_packages" "$config_only" "$install_uv" "$install_blesh" "$node_version" "$install_node" "$codex_version" "$install_codex"
 if ((dry_run)); then
   echo 'Would preserve existing tools, add managed Bash/PATH hooks with backups, and install missing selected tools.'
-  echo 'System tools: git curl python3 tar xz gawk tmux rg fd/fdfind rsync.'
+  echo 'System tools: git curl python3 tar xz gawk tmux rg fd/fdfind rsync zip unzip htop nvtop.'
   echo 'No CUDA/Docker/SSH configuration, credentials, services, or compute workloads are included.'
   exit 0
 fi
@@ -52,9 +52,9 @@ if ((system_packages && !config_only)); then
   command -v sudo >/dev/null || { echo 'sudo is unavailable; ask the administrator for prerequisites.' >&2;exit 1; }
   if command -v apt-get >/dev/null; then
     sudo apt-get update
-    sudo apt-get install -y ca-certificates curl git python3 tar xz-utils gawk tmux ripgrep fd-find rsync
+    sudo apt-get install -y ca-certificates curl git python3 tar xz-utils gawk tmux ripgrep fd-find rsync zip unzip htop nvtop
   elif command -v dnf >/dev/null; then
-    sudo dnf install -y ca-certificates curl git python3 tar xz gawk tmux ripgrep fd-find rsync
+    sudo dnf install -y ca-certificates curl git python3 tar xz gawk tmux ripgrep fd-find rsync zip unzip htop nvtop
   else echo 'Supported system package managers: apt-get and dnf. Install prerequisites manually.' >&2;exit 1;fi
 fi
 command -v python3 >/dev/null || { echo 'python3 is required for safe configuration updates.' >&2;exit 1; }
@@ -111,7 +111,7 @@ config_args=(--home "$HOME")
 if ((with_agents)); then config_args+=(--agents "$ROOT/config/AGENTS.md"); fi
 python3 "$ROOT/scripts/configure.py" "${config_args[@]}"
 if ((!config_only)); then
-  required_tools=bash,git,curl,python3,tmux,rg,fd,rsync,gawk,tar,xz
+  required_tools=bash,git,curl,python3,tmux,rg,fd,rsync,gawk,tar,xz,zip,unzip,htop,nvtop
   if ((install_uv)); then required_tools+=,uv; fi
   if ((install_node)); then required_tools+=,nvm,node,npm; fi
   if ((install_codex)); then required_tools+=,codex; fi

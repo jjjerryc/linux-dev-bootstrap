@@ -4,7 +4,7 @@ set -euo pipefail
 bundle_dir=$(mktemp -d "${TMPDIR:-/tmp}/jayson-dev-bundle.XXXXXXXX")
 trap 'rm -rf -- "$bundle_dir"' EXIT
 mkdir -p "$bundle_dir/scripts" "$bundle_dir/config"
-cat > "$bundle_dir/bootstrap.sh" <<'DEV_BUNDLE_0b7ddc663c79a1558684acde'
+cat > "$bundle_dir/bootstrap.sh" <<'DEV_BUNDLE_499e577c8d8629bbeee8e1f6'
 #!/usr/bin/env bash
 # Install a portable user environment; never changes authentication or services.
 set -euo pipefail
@@ -51,7 +51,7 @@ printf 'Target: %s\nSystem packages: %s; config only: %s\nuv: %s; ble.sh: %s; No
   "$HOME" "$system_packages" "$config_only" "$install_uv" "$install_blesh" "$node_version" "$install_node" "$codex_version" "$install_codex"
 if ((dry_run)); then
   echo 'Would preserve existing tools, add managed Bash/PATH hooks with backups, and install missing selected tools.'
-  echo 'System tools: git curl python3 tar xz gawk tmux rg fd/fdfind rsync.'
+  echo 'System tools: git curl python3 tar xz gawk tmux rg fd/fdfind rsync zip unzip htop nvtop.'
   echo 'No CUDA/Docker/SSH configuration, credentials, services, or compute workloads are included.'
   exit 0
 fi
@@ -59,9 +59,9 @@ if ((system_packages && !config_only)); then
   command -v sudo >/dev/null || { echo 'sudo is unavailable; ask the administrator for prerequisites.' >&2;exit 1; }
   if command -v apt-get >/dev/null; then
     sudo apt-get update
-    sudo apt-get install -y ca-certificates curl git python3 tar xz-utils gawk tmux ripgrep fd-find rsync
+    sudo apt-get install -y ca-certificates curl git python3 tar xz-utils gawk tmux ripgrep fd-find rsync zip unzip htop nvtop
   elif command -v dnf >/dev/null; then
-    sudo dnf install -y ca-certificates curl git python3 tar xz gawk tmux ripgrep fd-find rsync
+    sudo dnf install -y ca-certificates curl git python3 tar xz gawk tmux ripgrep fd-find rsync zip unzip htop nvtop
   else echo 'Supported system package managers: apt-get and dnf. Install prerequisites manually.' >&2;exit 1;fi
 fi
 command -v python3 >/dev/null || { echo 'python3 is required for safe configuration updates.' >&2;exit 1; }
@@ -118,7 +118,7 @@ config_args=(--home "$HOME")
 if ((with_agents)); then config_args+=(--agents "$ROOT/config/AGENTS.md"); fi
 python3 "$ROOT/scripts/configure.py" "${config_args[@]}"
 if ((!config_only)); then
-  required_tools=bash,git,curl,python3,tmux,rg,fd,rsync,gawk,tar,xz
+  required_tools=bash,git,curl,python3,tmux,rg,fd,rsync,gawk,tar,xz,zip,unzip,htop,nvtop
   if ((install_uv)); then required_tools+=,uv; fi
   if ((install_node)); then required_tools+=,nvm,node,npm; fi
   if ((install_codex)); then required_tools+=,codex; fi
@@ -128,7 +128,7 @@ if ((!config_only)); then
 fi
 echo 'Done. Open a new Bash terminal. Run dev-doctor anytime to inspect this host.'
 echo 'For noninteractive SSH: ~/.local/bin/dev-run uv --version (or codex --version).'
-DEV_BUNDLE_0b7ddc663c79a1558684acde
+DEV_BUNDLE_499e577c8d8629bbeee8e1f6
 cat > "$bundle_dir/scripts/configure.py" <<'DEV_BUNDLE_1ac5e64bae40d8e4051f8649'
 #!/usr/bin/env python3
 """Preserve unrelated shell config; manage only explicitly marked blocks/files."""
@@ -268,7 +268,7 @@ else
   exec python3 "$HOME/.local/share/jayson-dev/doctor.py" "$@"
 fi
 DEV_BUNDLE_e8bbb65ee7161889eab2d62b
-cat > "$bundle_dir/scripts/doctor.py" <<'DEV_BUNDLE_9b7fb12b87be3ca91eaf1cfe'
+cat > "$bundle_dir/scripts/doctor.py" <<'DEV_BUNDLE_51df901e0e8bb63e217732f5'
 #!/usr/bin/env python3
 # Managed by linux-dev-bootstrap
 """Read-only hardware/tool inventory. No benchmarks, network requests or credential reads."""
@@ -283,9 +283,9 @@ import shlex
 import shutil
 import subprocess
 
-TOOLS=['bash','git','curl','python3','uv','node','npm','codex','tmux','rg','fd','rsync','gawk','tar','xz',
+TOOLS=['bash','git','curl','python3','uv','node','npm','codex','tmux','rg','fd','rsync','gawk','tar','xz','zip','unzip','htop','nvtop',
        'gcc','g++','make','cmake','pkg-config','docker','nvcc','nvidia-smi']
-DEFAULT_REQUIRED=['bash','git','curl','python3','uv','node','npm','codex','tmux','rg','fd','rsync','gawk','tar','xz','blesh']
+DEFAULT_REQUIRED=['bash','git','curl','python3','uv','node','npm','codex','tmux','rg','fd','rsync','gawk','tar','xz','zip','unzip','htop','nvtop','blesh']
 
 def command(args, timeout=8):
     try:
@@ -344,7 +344,7 @@ def collect(required,home=None):
         executable=shutil.which(name) or (shutil.which('fdfind') if name=='fd' else None)
         if not executable:
             tools[name]={'available':False,'path':None,'version':None,'error':'not installed'};continue
-        flag='-V' if name=='tmux' else '--version'
+        flag='-V' if name=='tmux' else ('-v' if name in ('zip','unzip') else '--version')
         code,text=command([executable,flag])
         # nvcc's relevant release appears after its copyright banner.
         version=next((line for line in text.splitlines() if 'release ' in line),text.splitlines()[0] if text else '') if name=='nvcc' else (text.splitlines()[0] if text else '')
@@ -397,5 +397,5 @@ def main():
     return 0 if report['ok'] else 1
 
 if __name__=='__main__':raise SystemExit(main())
-DEV_BUNDLE_9b7fb12b87be3ca91eaf1cfe
+DEV_BUNDLE_51df901e0e8bb63e217732f5
 bash "$bundle_dir/bootstrap.sh" "$@"
