@@ -24,18 +24,26 @@
 
 `install.sh` 是獨立完整安裝器，內含 bootstrap、設定更新器及可選 AGENTS.md。新主機不需要先 clone，也不會再從 repo 下載其他檔案；安裝工具本身仍需要網路。
 
-發布到公開 GitHub repo 後，把 `jjjerryc/linux-dev-bootstrap` 換成真實位置：
+固定的短入口：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jjjerryc/linux-dev-bootstrap/main/install.sh | bash
+curl -fsSL https://jjjerryc.github.io/i | bash
 ```
+
+沒有 curl、但有 wget 時：
+
+```bash
+wget -qO- https://jjjerryc.github.io/i | bash
+```
+
+短入口由你的 GitHub Pages 提供，會下載原 repository 的最新版安裝器，不需另外同步一份完整腳本。原始備援網址：`https://raw.githubusercontent.com/jjjerryc/linux-dev-bootstrap/main/install.sh`。
 
 預設就是完整安裝：Ubuntu/Debian 使用 sudo apt，Fedora 使用 sudo dnf，包含 tmux、rg、fd、rsync、Git 等系統工具，以及使用者目錄的 uv、ble.sh、Node／Codex。sudo 可能提示密碼；請用一般帳號執行，讓腳本只對系統套件呼叫 sudo。
 
 共用伺服器沒有 sudo 權限時可改用：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jjjerryc/linux-dev-bootstrap/main/install.sh | bash -s -- --user-only
+curl -fsSL https://jjjerryc.github.io/i | bash -s -- --user-only
 ```
 
 這個模式需管理員事先提供 Bash、curl、Python 3、Git、tar、xz 和 gawk。`--config-only` 只調整設定，不呼叫 sudo 或安裝工具。
@@ -43,8 +51,8 @@ curl -fsSL https://raw.githubusercontent.com/jjjerryc/linux-dev-bootstrap/main/i
 其他選項同樣可以傳入：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jjjerryc/linux-dev-bootstrap/main/install.sh | bash -s -- --dry-run
-curl -fsSL https://raw.githubusercontent.com/jjjerryc/linux-dev-bootstrap/main/install.sh | bash -s -- --with-agents
+curl -fsSL https://jjjerryc.github.io/i | bash -s -- --dry-run
+curl -fsSL https://jjjerryc.github.io/i | bash -s -- --with-agents
 ```
 
 安裝器有來源、版本選擇和設定備份，會重用已安裝的工具。完成後**開新終端**就能使用 ble.sh、uv、Node 和 Codex；安裝器無法修改呼叫它的既有 shell。Codex 仍需在新主機登入。入口也能放在任何可直接下載的 HTTPS 網址，不需要另開服務。
